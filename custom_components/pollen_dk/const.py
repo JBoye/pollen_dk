@@ -13,8 +13,8 @@ POLLEN_TYPES = {
 }
 
 REGION_IDS = {
-    "west": 48,
-    "east": 49,
+    "east": 48,
+    "west": 49,
 }
 
 POLLEN_LEVEL_INTERVALS = {

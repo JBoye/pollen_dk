@@ -136,6 +136,7 @@ class PollenSensor(CoordinatorEntity, Entity):
             attrs["severity"] = POLLEN_LEVEL_DESCRIPTION_IDS.get(severity, "")
             # attrs["unit_of_measurement"] = "index"
             attrs["source_date"] = today_str
+            attrs["region"] = region_key
 
             predictions = pollen_info.get("predictions", {}).get("mapValue", {}).get("fields", {})
             pred_map = {}
