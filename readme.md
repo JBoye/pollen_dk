@@ -1,7 +1,9 @@
 # Danish Pollen (`pollen_dk`)
 
-Custom Home Assistant integration that provides daily pollen forecasts for Denmark.  
-Supports East and West Denmark regions, with sensors for multiple pollen types.
+A custom Home Assistant integration that provides daily pollen forecasts for Denmark.  
+Data is sourced from [Astma-Allergi Danmark](https://www.astma-allergi.dk/).
+
+Created by ChatGPT, with a little help from @JBoye
 
 ---
 
@@ -9,48 +11,44 @@ Supports East and West Denmark regions, with sensors for multiple pollen types.
 
 ### Option 1: Manual
 
-1. Copy the `pollen_dk` folder into:
-config/custom_components/
+1. Copy the `pollen_dk` folder into your Home Assistant configuration:
+config/custom_components/pollen_dk
 
 2. Restart Home Assistant.
 
 3. Go to **Settings → Devices & Services → Add Integration**, search for **Danish Pollen**, and follow the setup.
 
----
-
 ### Option 2: HACS (Recommended)
 
-1. In HACS, go to **Integrations → 3-dot menu → Custom repositories**.
+1. In Home Assistant, open **HACS → Integrations → 3-dot menu → Custom repositories**.
 
-2. Add this repository URL as an integration:
-https://github.com/JBoye/pollen_dk
+2. Add this repository as a custom integration:
+`https://github.com/JBoye/pollen_dk`
 
-3. Click **Add**, then install **Danish Pollen** from HACS.
+3. Search for **Danish Pollen** in HACS and install it.
 
-4. Restart Home Assistant and add the integration via **Settings → Devices & Services**.
+4. Restart Home Assistant, then add the integration via **Settings → Devices & Services**.
 
 ---
 
-## 🧾 Features
+## 🌿 Features
 
 - One sensor per pollen type
-- Numeric pollen level as sensor `state`
+- State shows numeric pollen level
 - Attributes include:
-- `severity`: low, medium, high
-- `predictions`: upcoming values sorted by date
-- `in_season`, `is_ml`, `source_date`, etc.
-
-No API key required.
+- `severity`: low / medium / high
+- `in_season`, `is_ml`, `predicted`, `source_date`
+- `predictions`: upcoming daily values
 
 ---
 
-## 🧰 Supported Pollen Types
+## 🌾 Supported Pollen Types
 
 - birk (birch)
-- bynke
+- bynke (mugwort)
 - el (alder)
 - elm
 - græs (grass)
 - hassel (hazel)
-- alternaria
-- cladosporium
+- alternaria (fungus)
+- cladosporium (fungus)
