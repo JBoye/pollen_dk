@@ -1,0 +1,10 @@
+{
+  "domain": "pollen_dk",
+  "name": "Danish Pollen",
+  "version": "1.1.0",
+  "config_flow": true,
+  "documentation": "https://github.com/JBoye/pollen_dk",
+  "requirements": [],
+  "codeowners": ["@JBoye"],
+  "iot_class": "cloud_polling"
+}
