@@ -7,8 +7,12 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed, CoordinatorEntity
 
 from .const import (
-    DOMAIN, POLLEN_URL, POLLEN_TYPES, REGION_IDS,
-    POLLEN_LEVEL_INTERVALS, POLLEN_LEVEL_DESCRIPTION_IDS
+    DOMAIN,
+    POLLEN_URL,
+    POLLEN_TYPES,
+    REGION_IDS,
+    POLLEN_LEVEL_INTERVALS,
+    POLLEN_LEVEL_DESCRIPTION_IDS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -72,10 +76,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
             raise UpdateFailed(f"Error fetching pollen data: {e}")
 
     coordinator.update_method = async_fetch_data
-
     await coordinator.async_request_refresh()
 
-    sensors = [PollenSensor(coordinator, key) for key in coordinator.data]
+    sensors = []
+    for key in coordinator.data:
+        sensors.append(PollenSensor(coordinator, key))
+        sensors.append(PollenLevelSensor(coordinator, key))
     async_add_entities(sensors, True)
 
 
@@ -95,21 +101,6 @@ class PollenSensor(CoordinatorEntity, Entity):
     @property
     def state(self):
         return self.coordinator.data.get(self._pollen_type)
-    
-    @property
-    def icon(self):
-        icon_map = {
-            "Alternaria": "mdi:bacteria",
-            "Birk": "mdi:tree",
-            "Bynke": "mdi:flower-pollen",
-            "Cladosporium": "mdi:bacteria",
-            "El": "mdi:tree",
-            "Elm": "mdi:tree",
-            "Græs": "mdi:grass",
-            "Hassel": "mdi:leaf",
-        }
-        return icon_map.get(self._pollen_type, "mdi:flower")
-
 
     @property
     def extra_state_attributes(self):
@@ -134,7 +125,6 @@ class PollenSensor(CoordinatorEntity, Entity):
             attrs["in_season"] = pollen_info.get("inSeason", {}).get("booleanValue")
             attrs["level"] = level
             attrs["severity"] = POLLEN_LEVEL_DESCRIPTION_IDS.get(severity, "")
-            # attrs["unit_of_measurement"] = "index"
             attrs["source_date"] = today_str
             attrs["region"] = region_key
 
@@ -151,16 +141,75 @@ class PollenSensor(CoordinatorEntity, Entity):
                     attrs["is_ml"] = is_ml
                     attrs["predicted"] = is_ml
 
-            try:
-                sorted_preds = dict(sorted(
-                    pred_map.items(),
-                    key=lambda x: datetime.strptime(x[0], "%d-%m-%Y")
-                ))
-                attrs["predictions"] = sorted_preds
-            except Exception:
-                attrs["predictions"] = pred_map
+            sorted_preds = dict(sorted(
+                pred_map.items(),
+                key=lambda x: datetime.strptime(x[0], "%d-%m-%Y")
+            ))
+            attrs["predictions"] = sorted_preds
 
         except Exception as e:
             _LOGGER.debug(f"Could not extract attributes for {self._pollen_type}: {e}")
 
         return attrs
+
+    @property
+    def icon(self):
+        icon_map = {
+            "alternaria": "mdi:bacteria",
+            "birk": "mdi:tree",
+            "bynke": "mdi:flower-pollen",
+            "cladosporium": "mdi:bacteria",
+            "el": "mdi:tree",
+            "elm": "mdi:tree",
+            "græs": "mdi:grass",
+            "hassel": "mdi:leaf",
+        }
+        return icon_map.get(self._pollen_type, "mdi:flower")
+
+
+class PollenLevelSensor(CoordinatorEntity, Entity):
+    def __init__(self, coordinator, pollen_type):
+        super().__init__(coordinator)
+        self._pollen_type = pollen_type
+
+    @property
+    def name(self):
+        return f"Pollen {self._pollen_type.capitalize()} Level"
+
+    @property
+    def unique_id(self):
+        return f"pollen_{self._pollen_type}_level"
+
+    @property
+    def state(self):
+        try:
+            data = self.coordinator.data_raw
+            region_id = REGION_IDS[self.coordinator.config_entry.data["region"]]
+            pollen_id = next(k for k, v in POLLEN_TYPES.items() if v == self._pollen_type)
+
+            pollen_info = (
+                data["fields"][str(region_id)]["mapValue"]
+                ["fields"]["data"]["mapValue"]
+                ["fields"][str(pollen_id)]["mapValue"]["fields"]
+            )
+
+            if not pollen_info.get("inSeason", {}).get("booleanValue", False):
+                return "out_of_season"
+
+            level = int(pollen_info.get("level", {}).get("integerValue", -1))
+            severity_id = classify_level(level, pollen_id)
+            return POLLEN_LEVEL_DESCRIPTION_IDS.get(severity_id, "")
+
+        except Exception:
+            return None
+
+    @property
+    def extra_state_attributes(self):
+        return {
+            "type": self._pollen_type,
+            "source": "classified from numeric pollen level",
+        }
+
+    @property
+    def icon(self):
+        return "mdi:alert-decagram-outline"
