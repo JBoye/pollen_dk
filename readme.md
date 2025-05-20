@@ -1,4 +1,4 @@
-# Danish Pollen (`pollen_dk`)
+# Pollen DK
 
 A custom Home Assistant integration that provides daily pollen forecasts for Denmark.  
 Data is sourced from [Astma-Allergi Danmark](https://www.astma-allergi.dk/).
@@ -12,11 +12,11 @@ Created by ChatGPT, with a little help from @JBoye
 ### Option 1: Manual
 
 1. Copy the `pollen_dk` folder into your Home Assistant configuration:
-config/custom_components/pollen_dk
+`config/custom_components/pollen_dk`
 
 2. Restart Home Assistant.
 
-3. Go to **Settings → Devices & Services → Add Integration**, search for **Danish Pollen**, and follow the setup.
+3. Go to **Settings → Devices & Services → Add Integration**, search for **Pollen DK**, and follow the setup.
 
 ### Option 2: HACS (Recommended)
 
@@ -25,7 +25,7 @@ config/custom_components/pollen_dk
 2. Add this repository as a custom integration:
 `https://github.com/JBoye/pollen_dk`
 
-3. Search for **Danish Pollen** in HACS and install it.
+3. Search for **Pollen DK** in HACS and install it.
 
 4. Restart Home Assistant, then add the integration via **Settings → Devices & Services**.
 
