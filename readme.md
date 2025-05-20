@@ -3,7 +3,7 @@
 A custom Home Assistant integration that provides daily pollen forecasts for Denmark.  
 Data is sourced from [Astma-Allergi Danmark](https://www.astma-allergi.dk/).
 
-Created by ChatGPT, with a little help from @JBoye
+Created by ChatGPT, with a little help from [@JBoye](https://github.com/JBoye)
 
 ---
 
