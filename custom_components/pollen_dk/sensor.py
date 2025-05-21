@@ -127,6 +127,8 @@ class PollenSensor(CoordinatorEntity, Entity):
             attrs["severity"] = POLLEN_LEVEL_DESCRIPTION_IDS.get(severity, "")
             attrs["source_date"] = today_str
             attrs["region"] = region_key
+            attrs["unit_of_measurement"] = "pollen"
+            attrs["state_class"] = "measurement"
 
             predictions = pollen_info.get("predictions", {}).get("mapValue", {}).get("fields", {})
             pred_map = {}
@@ -206,8 +208,7 @@ class PollenLevelSensor(CoordinatorEntity, Entity):
     @property
     def extra_state_attributes(self):
         return {
-            "type": self._pollen_type,
-            "source": "classified from numeric pollen level",
+            "type": self._pollen_type
         }
 
     @property
