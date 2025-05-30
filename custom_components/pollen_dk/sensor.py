@@ -206,11 +206,40 @@ class PollenLevelSensor(CoordinatorEntity, Entity):
             return None
 
     @property
-    def extra_state_attributes(self):
-        return {
-            "type": self._pollen_type
-        }
-
-    @property
     def icon(self):
         return "mdi:alert-decagram-outline"
+
+
+    @property
+    def extra_state_attributes(self):
+        attrs = {"type": self._pollen_type}
+        try:
+            data = self.coordinator.data_raw
+            region_id = REGION_IDS[self.coordinator.config_entry.data["region"]]
+            pollen_id = next(k for k, v in POLLEN_TYPES.items() if v == self._pollen_type)
+
+            pollen_info = (
+                data["fields"][str(region_id)]["mapValue"]
+                ["fields"]["data"]["mapValue"]
+                ["fields"][str(pollen_id)]["mapValue"]["fields"]
+            )
+
+            source_date = date.today()
+            source_date_str = source_date.strftime("%d-%m-%Y")
+
+            overrides = pollen_info.get("overrides", {}).get("arrayValue", {}).get("values", [])
+
+            predictions = {}
+            for i, override in enumerate(overrides[:5]):
+                day = (source_date + timedelta(days=i)).strftime("%d-%m-%Y")
+                val = override.get("stringValue")
+                severity = POLLEN_LEVEL_DESCRIPTION_IDS.get(val, "unknown")
+                predictions[day] = severity
+
+            attrs["source_date"] = source_date_str
+            attrs["predictions"] = predictions
+
+        except Exception as e:
+            _LOGGER.debug(f"Failed to extract predictions for {self._pollen_type}: {e}")
+
+        return attrs
